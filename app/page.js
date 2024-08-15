@@ -111,8 +111,8 @@ export default function Home() {
           Customizable Templates
         </Typography>
         <Typography variant='body1'>
-          Personalize your flashcards with a range of customizable templates. Whether you prefer a minimalist design or a more elaborate style, we've got you covered.
-        </Typography>
+  Personalize your flashcards with a range of customizable templates. Whether you prefer a minimalist design or a more elaborate style, we&apos;ve got you covered.
+</Typography>
       </Box>
     </Grid>
   </Grid>
