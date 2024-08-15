@@ -167,7 +167,7 @@ export default function Generate() {
             ))}
           </Grid>
           <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-            <Button variant="contained" color="secondary" onClick={handleOpen}>
+            <Button sx={{mb:5, padding:2}} variant="contained" color="primary" onClick={handleOpen}>
               Save
             </Button>
           </Box>
