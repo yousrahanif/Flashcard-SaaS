@@ -18,12 +18,12 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
+  CircularProgress, // Import CircularProgress for loading indicator
 } from '@mui/material'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
 import { doc, collection, setDoc, getDoc, writeBatch } from 'firebase/firestore'
 import Swal from 'sweetalert2'
-
 
 export default function Generate() {
   const { isLoaded, isSignedIn, user } = useUser()
@@ -32,15 +32,23 @@ export default function Generate() {
   const [flipped, setFlipped] = useState({})
   const [setName, setSetName] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [loading, setLoading] = useState(false) // Add loading state
   const router = useRouter()
 
   const handleSubmit = async () => {
+    setLoading(true) // Start loading
     fetch('api/generate', {
       method: 'POST',
       body: text,
     })
       .then((res) => res.json())
-      .then((data) => setFlashcards(data))
+      .then((data) => {
+        setFlashcards(data)
+        setLoading(false) // Stop loading
+      })
+      .catch(() => {
+        setLoading(false) // Stop loading in case of error
+      })
   }
 
   const handleCardClick = (id) => {
@@ -77,6 +85,7 @@ export default function Generate() {
       return
     }
 
+    setLoading(true) // Start loading
     const batch = writeBatch(db)
     const userDocRef = doc(collection(db, 'users'), user.id)
     const docSnap = await getDoc(userDocRef)
@@ -85,6 +94,7 @@ export default function Generate() {
       const collections = docSnap.data().flashcards || []
       if (collections.find((f) => f.name === setName)) {
         alert('A flashcard collection with the same name already exists')
+        setLoading(false) // Stop loading
         return
       } else {
         collections.push({ name: setName })
@@ -101,6 +111,7 @@ export default function Generate() {
     })
 
     await batch.commit()
+    setLoading(false) // Stop loading
     handleCloseDialog()
     router.push('/flashcards')
   }
@@ -161,7 +172,24 @@ export default function Generate() {
         </Paper>
       </Box>
 
-      {flashcards.length > 0 && (
+      {loading && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1300,
+          }}
+        >
+          <CircularProgress size={60} /> {/* Show loading spinner */}
+        </Box>
+      )}
+
+      {flashcards.length > 0 && !loading && (
         <Box sx={{ mt: 4 }}>
           <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold', color: '#333', textAlign: 'center' }}>
             Flashcards Preview
@@ -270,8 +298,9 @@ export default function Generate() {
         </DialogActions>
       </Dialog>
     </Container>
-  );
+  )
 }
+
 
 
 
